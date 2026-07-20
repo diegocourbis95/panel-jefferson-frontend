@@ -8,4 +8,5 @@ api.interceptors.request.use(config => {
 export const get = (url, config) => api.get(url, config).then(r => r.data)
 export const post = (url, data, config) => api.post(url, data, config).then(r => r.data)
 export const patch = (url, data) => api.patch(url, data).then(r => r.data)
+export const del = (url) => api.delete(url).then(r => r.data)
 export default api
