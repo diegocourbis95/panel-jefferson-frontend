@@ -174,7 +174,7 @@ export default function Calendario() {
       {groupDetail && (
         <Modal title={`Cobrar: ${groupDetail.clienteNombre}`} onClose={() => setGroupDetail(null)}>
           <p className="muted">Vencimiento: {date(groupDetail.fecha)}</p>
-          <section className="table panel">
+          <section className="table panel documentos-agrupados">
             <div className="thead"><span>Documento</span><span>Monto</span><span>Saldo</span></div>
             {groupDetail.documentos.map(d => (
               <div className="trow" key={d.id}>
