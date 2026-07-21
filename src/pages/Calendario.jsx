@@ -178,7 +178,7 @@ export default function Calendario() {
             <div className="thead"><span>Documento</span><span>Monto</span><span>Saldo</span></div>
             {groupDetail.documentos.map(d => (
               <div className="trow" key={d.id}>
-                <div><b>{d.tipo}</b><small> N°{d.numero_documento}</small></div>
+                <div><b>{d.tipo}</b><small className="folio"> N°{d.numero_documento}</small></div>
                 <span>{clp(d.monto_total)}</span>
                 <b>{clp(d.saldo_pendiente)}</b>
               </div>
