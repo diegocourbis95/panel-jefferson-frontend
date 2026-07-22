@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import { get, patch, post } from '../api/client'
+import { del, get, patch, post } from '../api/client'
 import { Modal } from '../components/UI'
 import { clp, date } from '../utils'
 
@@ -43,6 +43,7 @@ export default function Calendario() {
   const [eventForm, setEventForm] = useState(null)
   const [eventSaving, setEventSaving] = useState(false)
   const [eventSaveError, setEventSaveError] = useState('')
+  const [taskDeleting, setTaskDeleting] = useState(false)
   const [newTask, setNewTask] = useState(null)
   const [taskForm, setTaskForm] = useState(emptyTaskForm)
   const [taskSaving, setTaskSaving] = useState(false)
@@ -59,6 +60,22 @@ export default function Calendario() {
     setEditEvent(evento)
     setEventForm({ titulo: evento.titulo, tipo: evento.tipo, fecha: evento.fecha, hora: evento.hora || '' })
     setEventSaveError('')
+  }
+
+  async function deleteTask() {
+    if (taskDeleting) return
+    if (!window.confirm('¿Eliminar esta tarea? Esta acción no se puede deshacer.')) return
+    setTaskDeleting(true)
+    setEventSaveError('')
+    try {
+      await del(`/tareas/${editEvent.tarea_id}`)
+      setEditEvent(null)
+      await load()
+    } catch (err) {
+      setEventSaveError(err.response?.data?.detail || 'No fue posible eliminar la tarea. Inténtalo nuevamente.')
+    } finally {
+      setTaskDeleting(false)
+    }
   }
 
   async function saveEvent(e) {
@@ -138,6 +155,11 @@ export default function Calendario() {
             {editEvent.documento_id && <p className="muted">Este evento está vinculado a un documento de cobranza.</p>}
             {eventSaveError && <p className="notice error">{eventSaveError}</p>}
             <button className="primary" disabled={eventSaving}>{eventSaving ? 'Guardando…' : 'Guardar'}</button>
+            {editEvent.tarea_id && (
+              <button type="button" className="danger" disabled={taskDeleting} onClick={deleteTask}>
+                {taskDeleting ? 'Eliminando…' : 'Completar y eliminar'}
+              </button>
+            )}
           </form>
         </Modal>
       )}
