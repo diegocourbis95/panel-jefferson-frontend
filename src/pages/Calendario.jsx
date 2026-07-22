@@ -7,7 +7,7 @@ import { Modal } from '../components/UI'
 import { clp, date } from '../utils'
 
 const eventTypes = [['reunion', 'Reunión'], ['llamada', 'Llamada'], ['cobranza', 'Cobranza'], ['personal', 'Personal']]
-const emptyTaskForm = { texto: '', categoria: 'biker', prioridad: 'media', fecha: '' }
+const emptyTaskForm = { texto: '', categoria: 'biker', prioridad: 'media', fecha: '', alerta_telegram: false }
 
 function buildEvents(rows, clients, documentos) {
   const clienteNombre = new Map(clients.map(c => [c.id, c.nombre]))
@@ -103,6 +103,10 @@ export default function Calendario() {
   async function saveTask(e) {
     e.preventDefault()
     if (taskSaving) return
+    if (taskForm.alerta_telegram && (!taskForm.fecha || !taskForm.hora)) {
+      setTaskSaveError('Para activar la alerta de Telegram, la tarea necesita fecha y hora.')
+      return
+    }
     setTaskSaving(true)
     setTaskSaveError('')
     const body = { ...taskForm, columna: 'hoy', cliente_id: taskForm.cliente_id || null, fecha: taskForm.fecha || null, hora: taskForm.hora || null }
@@ -186,6 +190,13 @@ export default function Calendario() {
                 {clients.map(c => <option value={c.id} key={c.id}>{c.nombre}</option>)}
               </select>
             </label>
+            <label>Alerta Telegram
+              <select value={taskForm.alerta_telegram ? 'si' : 'no'} onChange={e => setTaskForm({ ...taskForm, alerta_telegram: e.target.value === 'si' })}>
+                <option value="no">No</option>
+                <option value="si">Sí</option>
+              </select>
+            </label>
+            {taskForm.alerta_telegram && <p className="muted">Se enviará un recordatorio a Telegram exactamente en la fecha y hora de la tarea.</p>}
             <label>Fecha<input type="date" value={taskForm.fecha} onChange={e => setTaskForm({ ...taskForm, fecha: e.target.value })} /></label>
             <label>Hora<input type="time" value={taskForm.hora || ''} onChange={e => setTaskForm({ ...taskForm, hora: e.target.value })} /></label>
             {taskSaveError && <p className="notice error">{taskSaveError}</p>}
